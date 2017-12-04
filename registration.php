@@ -135,7 +135,8 @@ if ((isset($_SESSION['logged'])) && ($_SESSION['logged'] == true)) {
 
                 <br/>
 
-                <input type="submit" value="Zarejestruj się"/>
+                <button type="submit" />Zarejestruj się</button>
+            </form>
 
         </div>
     </div>

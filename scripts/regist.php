@@ -6,7 +6,7 @@
  * Time: 20:18
  */
 
-
+require('../db/DataBaseConnect.php');
 
 if (isset($_POST['email'])) {
     //Udana walidacja? Załóżmy, że tak!

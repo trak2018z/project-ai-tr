@@ -10,5 +10,7 @@ require_once("../db/DataBaseConnect.php");
 
 if(isset($_POST['group_name']))
 {
-    echo 'tak';
+    $label = $_POST['group_name'];
+    $db = new DataBaseConnect();
+    $db->addGroup($label);
 }

@@ -19,7 +19,7 @@
     <meta name="author" content="SitePoint">
 
     <link rel="stylesheet" href="libraries/bootstrap/css/bootstrap.min.css">
-    <script type="text/javascript" src="libraries/jQuery/jquery-3.2.1.js"></script>
+
 
 
 </head>

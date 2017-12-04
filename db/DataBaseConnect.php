@@ -70,7 +70,6 @@ class DataBaseConnect
         //Czy email już istnieje?
         $result = $this->dataBase->query("SELECT user_id FROM user WHERE email='$email'");
 
-        if (!$result) throw new Exception($this->dataBase->errorCode());
 
         if ($result->rowCount() > 0) {
             $check = false;
@@ -80,7 +79,6 @@ class DataBaseConnect
         //Czy nick jest już zarezerwowany?
         $result = $this->dataBase->query("SELECT user_id FROM user WHERE login='$login'");
 
-        if (!$result) throw new Exception($this->dataBase->errorCode());
 
         if ($result->rowCount() > 0) {
             $check = false;
@@ -89,8 +87,6 @@ class DataBaseConnect
 
         if ($check)
         {
-            //Hurra, wszystkie testy zaliczone, dodajemy konto do bazy
-
             if ($this->dataBase->query("INSERT INTO user VALUES (NULL, '$login', '$name', '$sur_name', '$pass', '$email', 'student', 1, NULL, NULL)"))
             {
                 $_SESSION['udanarejestracja']=true;
@@ -109,9 +105,56 @@ class DataBaseConnect
             header('Location: ../registration.php');
         }
 
+    }
+
+    public function addGroup($label) //todo dodawć usuwanie biełych znaków pred i na końcu stringa z nazwą grupy
+    {
+        $check = true;
+        $result = $this->dataBase->query("SELECT group_id FROM grupa WHERE label='$label'");
+
+        if ($result->rowCount() > 0) {
+            $check = false;
+            $_SESSION['e_group'] = "Istnieje już grupa o takiej nazwie!";
+        }
+
+        if ($check)
+        {
+            if($this->dataBase->query("INSERT INTO grupa VALUES (NULL, NULL, '$label', NULL)"))
+                $_SESSION['utworzenieGrupy']="Pomyślnie dodano grupę";
+            else
+                $_SESSION['e_group']="Wystąpił błąd. Nie udało się dodać grupy";
+            header('Location: ../home.php');
+        }
+        header('Location: ../home.php');
+    }
+
+    public function getGrupeList()
+    {
+        $result = $this->dataBase->query("SELECT label FROM grupa");
+        $rows = array();
 
 
+        if ($result != null) {
+            while ($row = $result->fetch(PDO::FETCH_ASSOC))
+                $rows[] = $row;
+        }
 
+        return json_encode($rows);
+    }
+
+    public function getGrupe($label)
+    {
+        $result = $this->dataBase->query("SELECT u.name, u.sur_name FROM user u, user_group u_g, grupa gr 
+                        WHERE u.user_id = u_g.user_id AND u_g.group_id = gr.group_id AND gr.label = '$label'");
+        $rows = array();
+
+        if ($result != null) {
+            while ($row = $result->fetch(PDO::FETCH_ASSOC))
+                $rows[] = $row;
+        }
+
+        return json_encode($rows);
     }
 
 }
+
