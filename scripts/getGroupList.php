@@ -2,11 +2,10 @@
 /**
  * Created by PhpStorm.
  * User: Robert
- * Date: 2017-12-04
- * Time: 23:57
+ * Date: 2018-01-03
+ * Time: 16:42
  */
 require('../db/DataBaseConnect.php');
 
     $db = new DataBaseConnect();
-    $label= $_POST['select'];
-    print_r($db->getGrupe($label));
+    print_r($db->getGroupList());

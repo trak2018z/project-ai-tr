@@ -128,7 +128,7 @@ class DataBaseConnect
         header('Location: ../home.php');
     }
 
-    public function getGrupeList()
+    public function getGroupList()
     {
         $result = $this->dataBase->query("SELECT label FROM grupa");
         $rows = array();
@@ -142,7 +142,7 @@ class DataBaseConnect
         return json_encode($rows);
     }
 
-    public function getGrupe($label)
+    public function getStudentsList($label)
     {
         $result = $this->dataBase->query("SELECT u.name, u.sur_name FROM user u, user_group u_g, grupa gr 
                         WHERE u.user_id = u_g.user_id AND u_g.group_id = gr.group_id AND gr.label = '$label'");
@@ -155,6 +155,7 @@ class DataBaseConnect
 
         return json_encode($rows);
     }
+
 
 }
 
