@@ -9,7 +9,7 @@
     }
 ?>
 
-<!doctype html>
+<!DOCTYPE html>
 
 <html lang="en">
 <head>
@@ -60,9 +60,11 @@
     }
     ?>
     <div class="row">
-        <div class="col-lg-8" id="content" >
+        <div class="col-lg-10" id="content" >
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-2">
+            <img src="images/Default_profile_picture_(male).jpg" height="125" width="125" alt="test">
+            <br />
             personal info
         </div>
     </div>

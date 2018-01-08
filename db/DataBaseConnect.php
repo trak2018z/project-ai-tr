@@ -142,9 +142,23 @@ class DataBaseConnect
         return json_encode($rows);
     }
 
+    public function getLessonsList($group_id)
+    {
+        $result = $this->dataBase->query("SELECT l.subject FROM lesson l, grupa gr 
+                                                    WHERE l.group_id = gr.group_id AND gr.group_id ='$group_id'");
+        $rows = array();
+
+        if ($result != null) {
+            while ($row = $result->fetch(PDO::FETCH_ASSOC))
+                $rows[] = $row;
+        }
+
+        return json_encode($rows);
+    }
+
     public function getStudentsList($label)
     {
-        $result = $this->dataBase->query("SELECT u.name, u.sur_name FROM user u, user_group u_g, grupa gr 
+        $result = $this->dataBase->query("SELECT u.user_id, u.name, u.sur_name, u.email, u.index_number, gr.group_id FROM user u, user_group u_g, grupa gr 
                         WHERE u.user_id = u_g.user_id AND u_g.group_id = gr.group_id AND gr.label = '$label'");
         $rows = array();
 
