@@ -144,7 +144,7 @@ class DataBaseConnect
 
     public function getLessonsList($group_id)
     {
-        $result = $this->dataBase->query("SELECT l.subject FROM lesson l, grupa gr 
+        $result = $this->dataBase->query("SELECT l.subject, l.lesson_id FROM lesson l, grupa gr 
                                                     WHERE l.group_id = gr.group_id AND gr.group_id ='$group_id'");
         $rows = array();
 
@@ -168,6 +168,23 @@ class DataBaseConnect
         }
 
         return json_encode($rows);
+    }
+
+    public function addMark($user_id, $lesson_id, $mark_label, $mark, $mark_comment)
+    {
+        if ($this->dataBase->query("INSERT INTO mark VALUES (NULL, '$lesson_id', '$mark_label', '$mark','$mark_comment')")) {
+            $tmp='MAX';
+            $result = $this->dataBase->query("SELECT $tmp(mark_id) as liczba FROM mark");
+            $rows = array();
+            if ($result != null) {
+                while ($row = $result->fetch(PDO::FETCH_ASSOC))
+                    $rows[] = $row;
+            }
+            $tmp=$rows[0]["liczba"];
+            if ($this->dataBase->query("INSERT INTO user_mark VALUES (NULL, $user_id,$tmp)")) {
+                return true;
+            } else{return false;}
+        } else{return false;}
     }
 
 
