@@ -158,7 +158,8 @@ class DataBaseConnect
 
     public function getStudentsList($label)
     {
-        $result = $this->dataBase->query("SELECT u.user_id, u.name, u.sur_name, u.email, u.index_number, gr.group_id FROM user u, user_group u_g, grupa gr 
+        $result = $this->dataBase->query("SELECT u.user_id, u.name, u.sur_name, u.email, u.index_number, gr.group_id 
+                        FROM user u, user_group u_g, grupa gr 
                         WHERE u.user_id = u_g.user_id AND u_g.group_id = gr.group_id AND gr.label = '$label'");
         $rows = array();
 
@@ -182,11 +183,27 @@ class DataBaseConnect
             }
             $tmp=$rows[0]["liczba"];
             if ($this->dataBase->query("INSERT INTO user_mark VALUES (NULL, $user_id,$tmp)")) {
-                return true;
-            } else{return false;}
-        } else{return false;}
+                return "udalo sie";
+            } else{return "error";}
+        } else{return "error";}
     }
 
+    public function getAllStudentInfo($user_id) {
+        $result = $this->dataBase->query("SELECT m.* FROM user_mark u_m, mark m WHERE u_m.user_id=$user_id
+                                                    AND m.mark_id = u_m.mark_id");
+        $rows = array();
 
+        if ($result != null) {
+            while ($row = $result->fetch(PDO::FETCH_ASSOC))
+                $rows[] = $row;
+        }
+        $result = $this->dataBase->query("SELECT p.*, l.* From presence p, lesson l 
+                                                    WHERE p.user_id = $user_id AND l.lesson_id=p.lesson_id");
+        if ($result != null) {
+            while ($row = $result->fetch(PDO::FETCH_ASSOC))
+                $rows[] = $row;
+        }
+        return json_encode($rows);
+    }
 }
 

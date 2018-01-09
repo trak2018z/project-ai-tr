@@ -105,7 +105,7 @@ function creatNewView(id) {
         var div2 = createElement(div, "DIV", 'divStudentsList', '', '');
         var flag = createElement(div, 'div', 'divActive', '', '');
 
-        button.onclick = buttonGetListInit;
+        button.onclick = buttonGetStudentsListInit;
         div.removeAttribute("class");
         $("#divSchoolDiary").slideToggle(0);
         $("#divSchoolDiary").slideToggle(700);
@@ -164,7 +164,7 @@ function writeLessonsList(userData) {
 
             for (var i = 0; i < result.length; i++) {
                 var z = document.createElement("option");
-                z.setAttribute("lesson_id",result[i].lesson_id);
+                z.setAttribute("lesson_id", result[i].lesson_id);
                 var t = document.createTextNode(result[i].subject);
                 z.appendChild(t);
                 select.appendChild(z);
@@ -187,7 +187,7 @@ function hideOutContent() {
     }
 }
 
-function buttonGetListInit() {
+function buttonGetStudentsListInit() {
     console.log("2");
     var select = $('#groupList option:selected').text();
     console.log(select);
@@ -198,6 +198,7 @@ function buttonGetListInit() {
             'select': select
         },
         url: "../project-ai/scripts/getStudentsList.php",
+        async: false,
         dataType: 'json',
         success: function (result) {
             $('#divStudentsList').empty();
@@ -206,6 +207,7 @@ function buttonGetListInit() {
             }
             buttonAddNewMarkInit();
             buttonAddMarkInit();
+            buttonShowMoreInit();
         },
         complete: function () {
         },
@@ -215,10 +217,10 @@ function buttonGetListInit() {
     });
 }
 
-function buttonAddMarkInit(){
+function buttonAddMarkInit() {
     $('.btnAddMark').on('click', function () {
         var id = $(this).attr('id');
-        id=id.substring(0,id.indexOf('-'));
+        id = id.substring(0, id.indexOf('-'));
         //console.log($('#' + id + '-selectLesson' + ' option:selected').attr("lesson_id"));
         $.ajax({
             type: "POST",
@@ -226,14 +228,19 @@ function buttonAddMarkInit(){
             data: {
                 'user_id': id,
                 'lesson_id': $('#' + id + '-selectLesson' + ' option:selected').attr("lesson_id"),
-                'mark_label' : $('#' + id + '-inputLabel').val(),
-                'mark' : $('#' + id + '-mark' + ' option:selected').text(),
-                'mark_comment' : $('#' + id + '-inputComment').val()
+                'mark_label': $('#' + id + '-inputLabel').val(),
+                'mark': $('#' + id + '-mark' + ' option:selected').text(),
+                'mark_comment': $('#' + id + '-inputComment').val()
             },
             url: "../project-ai/scripts/addMark.php",
             dataType: 'text',
             success: function (result) {
-                console.log(result);
+                if(document.getElementById(id+'-divMarksList')!=null){
+                    document.getElementById('divStudentsList').removeChild(document.getElementById(id+'-divMarksList'));
+                    createElement(document.getElementById('divStudentsList'),'DIV',id + '-divMarksList', '', '');
+                    getShowMoreData(id);
+                    //$('#' +id + '-divMarksList').slideToggle(0);
+                }
             },
             complete: function () {
             },
@@ -244,10 +251,18 @@ function buttonAddMarkInit(){
     })
 }
 
+function buttonShowMoreInit() {
+    $('.btnShowMore').on('click', function () {
+        var id = $(this).attr('id');
+        id = id.substring(0, id.indexOf('-'));
+        $('#' +id + '-divMarksList').slideToggle(700);
+    })
+}
+
 function buttonAddNewMarkInit() {
     $('.btnAddNewMark').on('click', function () {
         var id = $(this).attr('id');
-        id=id.substring(0,id.indexOf('-'));
+        id = id.substring(0, id.indexOf('-'));
         $('#' + id + '-addMark').slideToggle(700);
 
     })
@@ -256,7 +271,7 @@ function buttonAddNewMarkInit() {
 function creatUserRow(userData) {
     console.log(userData);
 
-    var div = createElement(document.getElementById('divStudentsList'), 'DIV', '', 'students row', '');
+    var div = createElement(document.getElementById('divStudentsList'), 'DIV', userData.user_id + '-student', 'students row', '');
 
     var divImage = createElement(div, 'DIV', '', 'col-lg-2', '');
 
@@ -279,14 +294,81 @@ function creatUserRow(userData) {
     var email = createElement(divEmail, 'P', '', '', userData.email);
 
     var divAddMark = createElement(div, 'DIV', '', 'col-lg-2', '');
-    var buttonAddMark = createElement(divAddMark, 'BUTTON', userData.user_id + '-addNewMark','btnAddNewMark', 'Dodaj Nowa Ocene');
+    var buttonAddMark = createElement(divAddMark, 'BUTTON', userData.user_id + '-addNewMark', 'btnAddNewMark', 'Dodaj Nowa Ocene');
 
     var divShowmore = createElement(div, 'DIV', '', 'col-lg-2', '');
-    var buttonShowMore = createElement(divShowmore, 'BUTTON', '', 'showMore', 'Szczegolowe Informacje');
+    var buttonShowMore = createElement(divShowmore, 'BUTTON', userData.user_id + '-showMore', 'btnShowMore', 'Szczegolowe Informacje');
 
     $('#divStudentsList').append(document.createElement('BR'));
 
     createAddMarkView(userData);
+    createElement(document.getElementById('divStudentsList'),'DIV',userData.user_id + '-divMarksList', '', '');
+    getShowMoreData(userData.user_id);
+    $('#' +userData.user_id + '-divMarksList').slideToggle(0);
+}
+
+function getShowMoreData(id){
+    console.log(id);
+    $.ajax({
+        type: "POST",
+        cash: false,
+        data: {
+            'user_id': id
+        },
+        url: "../project-ai/scripts/getAllStudentInfo.php",
+        dataType: 'json',
+        async: false,
+        success: function (result) {
+            console.log(result);
+            for (var i = 0; i < result.length; i++) {
+                if (result[i].mark != null)
+                    creatMarkRow(result[i], id);
+                else if (result[i].date != null)
+                    creatPresenceRow(result[i], id);
+            }
+        },
+        complete: function () {
+        },
+        error: function () {
+            console.log("error");
+        }
+    });
+}
+
+function creatMarkRow(markData, user_id) {
+    //var div = createElement(document.getElementById(user_id + '-student'), 'DIV', markData.mark_id + '-markId', 'marks row', '');
+    var parent = document.getElementById(user_id + '-divMarksList');
+    var div = createElement(parent,'DIV',markData.mark_id + '-markId', 'row', '');
+
+    var divLabel = createElement(div,'DIV',markData.mark_id + '-divMarkLabel', 'col-lg-3','');
+    var label = createElement(divLabel, 'P','','',markData.label);
+
+    var divMark = createElement(div,'DIV',markData.mark_id + '-divMarkMark', 'col-lg-3','');
+    var mark = createElement(divMark, 'P','','',markData.mark);
+
+    var divComment = createElement(div,'DIV',markData.mark_id + '-divMarkComment', 'col-lg-3','');
+    var comment = createElement(divComment, 'P','','',markData.comment);
+
+    $('#' +markData.mark_id + '-markId').append(document.createElement('BR'));
+
+}
+
+function creatPresenceRow(presenceData, user_id){
+    var parent = document.getElementById(user_id + '-divMarksList');
+
+    var div = createElement(parent,'DIV',presenceData.presence_id + '-presenceId', 'row', '');
+
+    var divDate = createElement(div,'DIV',presenceData.presence_id + '', 'col-lg-3','');
+    var label = createElement(divDate, 'P','','',presenceData.date);
+
+    var divSubject = createElement(div,'DIV',presenceData.presence_id + '', 'col-lg-3','');
+    var subject = createElement(divSubject, 'P','','',presenceData.subject);
+
+    var divDate = createElement(div,'DIV',presenceData.presence_id + '', 'col-lg-3','');
+    if(presenceData.presence)
+        var label = createElement(divDate, 'P','','tick','');
+    else
+        var label = createElement(divDate, 'P','','cross','');
 }
 
 function createAddMarkView(userData) {
@@ -322,7 +404,7 @@ function createAddMarkView(userData) {
     var buttonAddMark = createElement(divButton, 'BUTTON', userData.user_id + "-addMark", 'btnAddMark', "Dodaj ocene");
 
     $('#divStudentsList').append(document.createElement('BR'));
-    $('#'+userData.user_id +'-addMark').slideToggle(0);
+    $('#' + userData.user_id + '-addMark').slideToggle(0);
 }
 
 function createElement(parent, type, id, clas, conetnt) {
@@ -336,6 +418,20 @@ function createElement(parent, type, id, clas, conetnt) {
     if (clas != "")
         element.setAttribute("class", clas);
     parent.appendChild(element);
+    return element;
+}
+
+function createElementBefore(parent,elementBefore, type, id, clas, conetnt){
+    var element = document.createElement(type);
+    if (id != "")
+        element.id = id;
+    if (conetnt != "") {
+        var text = document.createTextNode(conetnt);
+        element.appendChild(text);
+    }
+    if (clas != "")
+        element.setAttribute("class", clas);
+    parent.insertBefore(element,elementBefore);
     return element;
 }
 
