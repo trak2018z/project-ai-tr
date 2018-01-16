@@ -19,33 +19,22 @@
     <meta name="author" content="SitePoint">
 
     <link rel="stylesheet" href="libraries/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="index.css" type="text/css" />
 
 
 
 </head>
 
 <body>
-<div class="container">
-    <div class="row">
-        <div class="col-lg-6">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. At obcaecati quisquam
-            recusandae?
-            <br />
+<div>
+        <div class="col-lg-6 container">
             <form action="scripts/login.php" method="post">
-                Login: <br /> <input type="text" name="login" /> <br />
-                Hasło: <br /> <input type="password" name="haslo" /> <br /><br />
+                <input placeholder="Login" type="text" name="login" />
+                <input placeholder="Hasło" type="password" name="haslo" />
                 <input type="submit" value="Zaloguj się" />
             </form>
+            <input class="regist" onclick="location.href='registration.php'" type="submit" value="Rejestracja" />
         </div>
-        <div class="col-lg-6">
-            <?php
-            //$db = new DataBaseConnect();
-            //$db->getAllUsers();
-            ?>
-
-            <input onclick="location.href='registration.php'" type="submit" value="Rejestracja" />
-        </div>
-    </div>
 </div>
 <script>
     $(function () {
